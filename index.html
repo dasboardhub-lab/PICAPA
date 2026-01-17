@@ -13,283 +13,361 @@
 
     <!-- Custom Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1', // Indigo
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        body { background-color: #f8fafc; }
         
-        /* Custom Scrollbar for Table */
-        .custom-scrollbar::-webkit-scrollbar { height: 8px; width: 8px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-        /* Animation Classes */
-        .fade-in { animation: fadeIn 0.3s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        /* Animations */
+        .fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        
+        .glass-header {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        .modal-backdrop {
+            background-color: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(8px);
+        }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+<body class="text-slate-800 min-h-screen flex flex-col selection:bg-brand-100 selection:text-brand-900">
 
-    <!-- HEADER -->
-    <header class="bg-blue-900 border-b border-blue-800 sticky top-0 z-50 shadow-lg">
-        <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="bg-white/10 p-2 rounded-lg backdrop-blur-sm border border-white/20 shadow-sm">
-                    <i data-lucide="file-spreadsheet" class="text-white w-5 h-5"></i>
+    <!-- HEADER (Modern Glass) -->
+    <header class="glass-header sticky top-0 z-40 transition-all duration-300">
+        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3 sm:gap-4">
+                <div class="bg-brand-600 p-2 sm:p-2.5 rounded-xl shadow-lg shadow-brand-500/30 text-white transform hover:scale-105 transition-transform duration-300">
+                    <i data-lucide="layers" class="w-5 h-5 sm:w-6 sm:h-6"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl font-bold tracking-tight text-white leading-none">PICA SYSTEM</h1>
-                    <p class="text-[11px] text-blue-200 font-medium mt-1 tracking-wide">Problem Identification & Corrective Action</p>
+                    <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 leading-none">PICA<span class="text-brand-600">.sys</span></h1>
+                    <p class="text-[10px] sm:text-xs text-slate-500 font-medium mt-0.5 sm:mt-1 tracking-wide uppercase">Enterprise Problem Solving</p>
                 </div>
             </div>
             
-            <div class="flex items-center gap-6 text-sm">
-                <div class="hidden md:flex items-center gap-8 bg-blue-800 px-4 py-1.5 rounded-lg border border-blue-700 shadow-inner">
-                    <div class="flex flex-col items-center">
-                        <span class="text-[10px] uppercase font-bold text-blue-300 tracking-wider">Total</span>
-                        <span id="stat-total" class="font-bold text-white text-lg leading-none">0</span>
-                    </div>
-                    <div class="h-6 w-px bg-blue-700"></div>
-                    <div class="flex flex-col items-center">
-                        <span class="text-[10px] uppercase font-bold text-purple-300 tracking-wider flex items-center gap-1">Waiting</span>
-                        <span id="stat-waiting" class="font-bold text-white text-lg leading-none">0</span>
-                    </div>
-                    <div class="h-6 w-px bg-blue-700"></div>
-                    <div class="flex flex-col items-center">
-                        <span class="text-[10px] uppercase font-bold text-emerald-300 tracking-wider">Closed</span>
-                        <span id="stat-closed" class="font-bold text-white text-lg leading-none">0</span>
-                    </div>
-                </div>
+            <!-- User Profile / Info (Static) -->
+            <div class="flex items-center gap-2 sm:gap-3 bg-white border border-slate-200 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full shadow-sm">
+                <div class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                <span class="text-[10px] sm:text-xs font-semibold text-slate-600">Online</span>
             </div>
         </div>
     </header>
 
     <!-- MAIN CONTENT -->
-    <main class="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-6">
+    <main class="flex-grow max-w-[1600px] mx-auto px-4 sm:px-6 py-6 sm:py-8 w-full space-y-6 sm:space-y-8">
 
-        <!-- Controls Bar -->
-        <div class="flex flex-col gap-4">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-                
-                <!-- Search & Filter Toggle -->
-                <div class="flex items-center gap-3 w-full md:flex-1">
-                    <div class="relative w-full max-w-xl">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i data-lucide="search" class="text-slate-400 w-4 h-4"></i>
-                        </div>
-                        <input type="text" id="search-input" placeholder="Cari Concern, ID, PIC, atau Problem..." class="pl-10 pr-4 py-2.5 w-full bg-slate-50 border-slate-200 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none">
+        <!-- KPI CARDS (Responsive Grid) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            <!-- Total Card -->
+            <div class="bg-white p-5 sm:p-6 rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:-translate-y-1 transition-all duration-300 group relative overflow-hidden">
+                <div class="absolute right-0 top-0 h-full w-1 bg-slate-200"></div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest mb-1 sm:mb-2">Total Cases</p>
+                        <h3 id="kpi-total" class="text-3xl sm:text-4xl font-bold text-slate-800 tracking-tight">0</h3>
                     </div>
-                    <button id="btn-toggle-filter" class="px-4 py-2.5 rounded-lg border text-sm font-medium flex items-center gap-2 transition-all shadow-sm bg-white border-slate-200 text-slate-600 hover:bg-slate-50">
-                        <i data-lucide="filter" class="w-4 h-4"></i>
-                        <span class="hidden sm:inline">Filter</span>
-                        <span id="filter-badge" class="hidden bg-blue-600 text-white text-[10px] h-5 min-w-[20px] rounded-full flex items-center justify-center px-1">0</span>
-                    </button>
+                    <div class="bg-slate-50 p-2.5 sm:p-3 rounded-xl text-slate-600 group-hover:bg-slate-100 transition-colors">
+                        <i data-lucide="database" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Waiting Card -->
+            <div class="bg-white p-5 sm:p-6 rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:-translate-y-1 transition-all duration-300 group relative overflow-hidden">
+                <div class="absolute right-0 top-0 h-full w-1 bg-purple-500"></div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-[10px] sm:text-xs font-bold text-purple-500 uppercase tracking-widest mb-1 sm:mb-2 flex items-center gap-1">Waiting <span class="w-1.5 h-1.5 rounded-full bg-purple-500 animate-ping"></span></p>
+                        <h3 id="kpi-waiting" class="text-3xl sm:text-4xl font-bold text-slate-800 tracking-tight">0</h3>
+                    </div>
+                    <div class="bg-purple-50 p-2.5 sm:p-3 rounded-xl text-purple-600 group-hover:bg-purple-100 transition-colors">
+                        <i data-lucide="pause-octagon" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Card -->
+            <div class="bg-white p-5 sm:p-6 rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:-translate-y-1 transition-all duration-300 group relative overflow-hidden">
+                <div class="absolute right-0 top-0 h-full w-1 bg-brand-500"></div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-[10px] sm:text-xs font-bold text-brand-500 uppercase tracking-widest mb-1 sm:mb-2">In Progress</p>
+                        <h3 id="kpi-progress" class="text-3xl sm:text-4xl font-bold text-slate-800 tracking-tight">0</h3>
+                    </div>
+                    <div class="bg-brand-50 p-2.5 sm:p-3 rounded-xl text-brand-600 group-hover:bg-brand-100 transition-colors">
+                        <i data-lucide="activity" class="w-5 h-5 sm:w-6 sm:h-6 animate-pulse"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Closed Card -->
+            <div class="bg-white p-5 sm:p-6 rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:-translate-y-1 transition-all duration-300 group relative overflow-hidden">
+                <div class="absolute right-0 top-0 h-full w-1 bg-emerald-500"></div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-[10px] sm:text-xs font-bold text-emerald-500 uppercase tracking-widest mb-1 sm:mb-2">Completed</p>
+                        <h3 id="kpi-closed" class="text-3xl sm:text-4xl font-bold text-slate-800 tracking-tight">0</h3>
+                    </div>
+                    <div class="bg-emerald-50 p-2.5 sm:p-3 rounded-xl text-emerald-600 group-hover:bg-emerald-100 transition-colors">
+                        <i data-lucide="check-circle-2" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTROL PANEL (Responsive Layout) -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+            <!-- Top Bar: Actions -->
+            <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-50/50">
+                <div class="relative w-full md:max-w-md group">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                        <i data-lucide="search" class="text-slate-400 w-4 h-4 group-focus-within:text-brand-600 transition-colors"></i>
+                    </div>
+                    <input type="text" id="search-input" placeholder="Quick search..." 
+                        class="pl-10 pr-4 py-2.5 w-full bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-700 shadow-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all outline-none hover:border-slate-300">
                 </div>
                 
-                <!-- Add Button -->
-                <button id="btn-toggle-form" class="bg-blue-700 text-white hover:bg-blue-800 border-transparent shadow-md hover:shadow-lg px-6 py-2.5 rounded-lg font-semibold text-sm transition-all flex items-center gap-2 w-full md:w-auto justify-center border">
-                    <i data-lucide="plus" class="w-4 h-4"></i>
-                    <span>Input PICA Baru</span>
+                <button id="btn-open-modal" class="w-full md:w-auto bg-slate-900 hover:bg-brand-600 text-white px-6 py-2.5 rounded-xl font-semibold text-sm shadow-md hover:shadow-lg hover:shadow-brand-500/30 transition-all duration-300 flex items-center justify-center gap-2 group">
+                    <i data-lucide="plus-circle" class="w-4 h-4 group-hover:rotate-90 transition-transform"></i>
+                    <span>New Entry</span>
                 </button>
             </div>
 
-            <!-- Filters Panel (Hidden by default) -->
-            <div id="filter-panel" class="hidden bg-white p-5 rounded-xl border border-blue-100 shadow-lg grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 fade-in relative z-10">
-                <div class="lg:col-span-1">
-                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1.5">Lokasi (HUB)</label>
-                    <select id="filter-hub" class="w-full text-sm bg-slate-50 border-slate-200 rounded-md focus:ring-blue-500 focus:border-blue-500 py-2 px-2 outline-none">
-                        <option value="">Semua HUB</option>
-                        <!-- Populated by JS -->
-                    </select>
+            <!-- Bottom Bar: Paten Filters (Grid Responsive) -->
+            <div class="p-4 sm:p-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                <div class="group">
+                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1.5 tracking-wider">Lokasi</label>
+                    <div class="relative">
+                        <select id="filter-hub" class="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg py-2.5 px-3 appearance-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none cursor-pointer hover:bg-white transition-all">
+                            <option value="">Semua HUB</option>
+                        </select>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none"></i>
+                    </div>
                 </div>
-                <div class="lg:col-span-1">
-                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1.5">Divisi</label>
-                    <select id="filter-division" class="w-full text-sm bg-slate-50 border-slate-200 rounded-md focus:ring-blue-500 focus:border-blue-500 py-2 px-2 outline-none">
-                        <option value="">Semua Divisi</option>
-                        <!-- Populated by JS -->
-                    </select>
+                
+                <div class="group">
+                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1.5 tracking-wider">Departemen</label>
+                    <div class="relative">
+                        <select id="filter-division" class="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg py-2.5 px-3 appearance-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none cursor-pointer hover:bg-white transition-all">
+                            <option value="">Semua Divisi</option>
+                        </select>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none"></i>
+                    </div>
                 </div>
-                <div class="lg:col-span-1">
-                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1.5">Status PICA</label>
-                    <select id="filter-status" class="w-full text-sm bg-slate-50 border-slate-200 rounded-md focus:ring-blue-500 focus:border-blue-500 py-2 px-2 outline-none">
-                        <option value="">Semua Status</option>
-                        <option value="planned">Planned</option>
-                        <option value="waiting">Waiting</option>
-                        <option value="progress">On Progress</option>
-                        <option value="done">Done / Closed</option>
-                    </select>
+
+                <div class="group">
+                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1.5 tracking-wider">Dari Tanggal</label>
+                    <input type="date" id="filter-start-date" class="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg py-2.5 px-3 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none cursor-pointer hover:bg-white transition-all text-slate-600">
                 </div>
-                <div class="lg:col-span-1">
-                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1.5">Dari Tanggal</label>
-                    <input type="date" id="filter-start-date" class="w-full text-sm bg-slate-50 border-slate-200 rounded-md focus:ring-blue-500 focus:border-blue-500 py-2 px-2 outline-none">
+
+                <div class="group">
+                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1.5 tracking-wider">Sampai Tanggal</label>
+                    <input type="date" id="filter-end-date" class="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg py-2.5 px-3 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none cursor-pointer hover:bg-white transition-all text-slate-600">
                 </div>
-                <div class="lg:col-span-1">
-                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1.5">Sampai Tanggal</label>
-                    <input type="date" id="filter-end-date" class="w-full text-sm bg-slate-50 border-slate-200 rounded-md focus:ring-blue-500 focus:border-blue-500 py-2 px-2 outline-none">
-                </div>
-                <div class="flex items-end lg:col-span-1">
-                    <button id="btn-reset-filter" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-md text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors border border-slate-200">
-                        <i data-lucide="refresh-cw" class="w-3 h-3"></i> Reset Filter
+
+                <div class="flex items-end sm:col-span-2 md:col-span-4 lg:col-span-1">
+                    <button id="btn-reset-filter" class="w-full py-2.5 bg-white border border-slate-200 text-slate-500 hover:text-brand-600 hover:border-brand-200 hover:bg-brand-50 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all duration-200">
+                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Reset
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- FORM SECTION (Hidden by default) -->
-        <div id="form-container" class="hidden bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden fade-in mb-8">
-            <div class="bg-gradient-to-r from-blue-700 to-blue-600 px-6 py-4 flex justify-between items-center shadow-sm">
-                <h3 id="form-title" class="font-bold text-white flex items-center gap-2 text-lg">
-                    <i data-lucide="plus" class="text-blue-200 w-5 h-5"></i> Input Data PICA Baru
-                </h3>
-            </div>
-            
-            <form id="pica-form" class="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
-                <input type="hidden" id="entry-id"> <!-- Hidden ID for Edit -->
-                <input type="hidden" id="entry-source" value="public"> <!-- Hidden Source (public/private) -->
-
-                <!-- SECTION 1: IDENTITY -->
-                <div class="space-y-5">
-                    <div class="flex items-center gap-2 text-blue-700 font-bold uppercase text-xs tracking-wider border-b border-blue-100 pb-2 mb-4">
-                        <i data-lucide="map-pin" class="w-3 h-3"></i> Identitas & Lokasi
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1.5">HUB (Lokasi)</label>
-                            <select id="hub" required class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white">
-                                <option value="">Pilih HUB...</option>
-                                <!-- Populated by JS -->
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1.5">Divisi (Multi-select)</label>
-                            <select id="division-select" class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none bg-white mb-2">
-                                <option value="" disabled selected>+ Tambah Divisi...</option>
-                                <!-- Populated by JS -->
-                            </select>
-                            <div id="division-tags" class="flex flex-wrap gap-1.5 min-h-[28px]">
-                                <!-- Tags will appear here -->
-                            </div>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Sensitivitas (Resiko)</label>
-                        <div class="grid grid-cols-3 gap-2" id="sensitivity-options">
-                            <!-- Buttons generated by JS -->
-                        </div>
-                        <input type="hidden" id="sensitivity" value="medium">
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Concern (Judul Masalah)</label>
-                        <input type="text" id="concern" required placeholder="Judul singkat masalah..." class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none">
-                    </div>
-                    
-                    <div>
-                        <div class="flex justify-between">
-                            <label class="block text-sm font-medium text-slate-700 mb-1.5">Problem Identification</label>
-                            <button type="button" onclick="refineText('problem')" class="text-xs text-blue-600 hover:underline flex items-center gap-1"><i data-lucide="wand-2" class="w-3 h-3"></i> Auto-fix</button>
-                        </div>
-                        <textarea id="problem" required rows="4" placeholder="Jelaskan detail masalah..." class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none resize-none"></textarea>
-                    </div>
-                </div>
-
-                <!-- SECTION 2: ACTION & TIMELINE -->
-                <div class="space-y-5">
-                    <div class="flex items-center gap-2 text-blue-700 font-bold uppercase text-xs tracking-wider border-b border-blue-100 pb-2 mb-4">
-                        <i data-lucide="activity" class="w-3 h-3"></i> Action Plan & Timeline
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1.5">PIC</label>
-                            <input type="text" id="pic" required placeholder="Nama PIC" class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1.5">Tgl Kejadian</label>
-                            <input type="date" id="startDate" required class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none">
-                        </div>
-                    </div>
-
-                    <div>
-                        <div class="flex justify-between">
-                            <label class="block text-sm font-medium text-slate-700 mb-1.5">Corrective Action</label>
-                            <button type="button" onclick="refineText('corrective')" class="text-xs text-blue-600 hover:underline flex items-center gap-1"><i data-lucide="wand-2" class="w-3 h-3"></i> Auto-fix</button>
-                        </div>
-                        <textarea id="corrective" required rows="2" placeholder="Tindakan perbaikan..." class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none resize-none"></textarea>
-                    </div>
-
-                    <div>
-                        <div class="flex justify-between">
-                            <label class="block text-sm font-medium text-slate-700 mb-1.5">Preventive Action</label>
-                            <button type="button" onclick="refineText('preventive')" class="text-xs text-blue-600 hover:underline flex items-center gap-1"><i data-lucide="wand-2" class="w-3 h-3"></i> Auto-fix</button>
-                        </div>
-                        <textarea id="preventive" required rows="2" placeholder="Tindakan pencegahan..." class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none resize-none"></textarea>
-                    </div>
-
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                        <div class="grid grid-cols-2 gap-4 mb-4">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Due Date</label>
-                                <input type="date" id="dueDate" required class="w-full text-sm border border-slate-300 px-2 py-1.5 rounded-md focus:ring-2 focus:ring-blue-500 outline-none bg-white">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Actual Finish</label>
-                                <input type="date" id="completionDate" class="w-full text-sm border border-slate-300 px-2 py-1.5 rounded-md focus:ring-2 focus:ring-blue-500 outline-none bg-white">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Status Pekerjaan</label>
-                            <div class="grid grid-cols-2 gap-2" id="status-options">
-                                <!-- Buttons generated by JS -->
-                            </div>
-                            <input type="hidden" id="status" value="planned">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="md:col-span-2 pt-4 border-t border-slate-100 flex justify-end gap-3">
-                    <button type="button" id="btn-cancel" class="px-6 py-2.5 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50 font-medium text-sm transition-colors">Batal</button>
-                    <button type="submit" class="px-8 py-2.5 rounded-lg bg-blue-700 text-white hover:bg-blue-800 font-bold text-sm shadow-md flex items-center gap-2 transition-all transform hover:translate-y-px">
-                        <i data-lucide="save" class="w-4 h-4"></i> <span id="submit-text">Submit Data</span>
-                    </button>
-                </div>
-            </form>
-        </div>
-
-        <!-- TABLE SECTION -->
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col mb-10">
+        <!-- TABLE SECTION (Scrollable on Mobile) -->
+        <div class="bg-white rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200/60 overflow-hidden flex flex-col">
             <div class="overflow-x-auto custom-scrollbar">
-                <table class="w-full text-sm text-left border-collapse relative">
-                    <thead class="bg-blue-900 text-white font-bold uppercase text-[10px] tracking-wider border-b border-blue-800 sticky top-0 z-20 shadow-sm">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-slate-50/80 backdrop-blur border-b border-slate-200 sticky top-0 z-20">
                         <tr>
-                            <th class="px-4 py-3 w-40 bg-blue-900">Identity & Location</th>
-                            <th class="px-4 py-3 min-w-[300px] bg-blue-900">Problem Details</th>
-                            <th class="px-4 py-3 min-w-[280px] bg-blue-900">Action Plan</th>
-                            <th class="px-4 py-3 w-32 bg-blue-900">Timeline</th>
-                            <th class="px-4 py-3 w-28 text-center bg-blue-900">Status</th>
-                            <th class="px-4 py-3 w-20 text-center bg-blue-900">Opt</th>
+                            <th class="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest w-48 whitespace-nowrap">Identity</th>
+                            <th class="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest min-w-[320px] whitespace-nowrap">Problem</th>
+                            <th class="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest min-w-[300px] whitespace-nowrap">Action Plan</th>
+                            <th class="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest w-40 whitespace-nowrap">Timeline</th>
+                            <th class="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest w-32 text-center whitespace-nowrap">Status</th>
+                            <th class="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest w-20 text-center whitespace-nowrap">Opt</th>
                         </tr>
                     </thead>
                     <tbody id="pica-table-body" class="divide-y divide-slate-100">
-                        <!-- Rows will be populated by JS -->
+                        <!-- Content JS -->
                         <tr>
-                            <td colspan="6" class="px-4 py-16 text-center text-slate-500">
-                                <div class="flex justify-center mb-2"><i data-lucide="loader-2" class="animate-spin w-8 h-8 text-blue-500"></i></div>
-                                Memuat data (Hybrid)...
+                            <td colspan="6" class="px-6 py-20 text-center text-slate-400">
+                                <div class="flex flex-col items-center justify-center gap-3">
+                                    <div class="bg-slate-50 p-4 rounded-full"><i data-lucide="loader-2" class="animate-spin w-6 h-6 text-brand-500"></i></div>
+                                    <span class="text-sm font-medium">Syncing Data...</span>
+                                </div>
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-            <div class="bg-slate-50 px-6 py-3 border-t border-slate-200 flex justify-between items-center text-xs text-slate-500">
-                <span id="showing-text">Showing 0 records</span>
-                <span>PICA System v2.0 &bull; <strong>Hybrid Mode (Pribadi & Publik)</strong></span>
+            <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-2">
+                <span id="showing-text" class="text-xs font-semibold text-slate-500">Ready</span>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider bg-slate-200 px-2 py-1 rounded">Secure Connection</span>
             </div>
         </div>
 
     </main>
+
+    <!-- MODAL FORM (Responsive) -->
+    <div id="modal-overlay" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4 sm:p-6">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] overflow-y-auto slide-up border border-slate-100 flex flex-col">
+            <!-- Modal Header -->
+            <div class="px-6 sm:px-8 py-5 sm:py-6 border-b border-slate-100 flex justify-between items-center sticky top-0 bg-white/90 backdrop-blur z-20">
+                <div>
+                    <h3 id="form-title" class="font-bold text-lg sm:text-xl text-slate-800 flex items-center gap-2">
+                        Input Data
+                    </h3>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-1">Isi formulir di bawah untuk mencatat case baru.</p>
+                </div>
+                <button id="btn-close-modal" class="w-8 h-8 rounded-full bg-slate-50 hover:bg-slate-100 flex items-center justify-center text-slate-500 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <form id="pica-form" class="p-6 sm:p-8 grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6 sm:gap-y-8">
+                <input type="hidden" id="entry-id">
+                <input type="hidden" id="entry-source" value="public">
+
+                <!-- COL 1 -->
+                <div class="space-y-5 sm:space-y-6">
+                    <div class="flex items-center gap-2 text-brand-600 font-bold text-xs uppercase tracking-widest mb-2">
+                        <i data-lucide="map-pin" class="w-3.5 h-3.5"></i> Identitas & Lokasi
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-semibold text-slate-600">HUB</label>
+                            <select id="hub" required class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none bg-slate-50 focus:bg-white transition-all">
+                                <option value="">Pilih...</option>
+                            </select>
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-semibold text-slate-600">Divisi</label>
+                            <select id="division-select" class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none bg-slate-50 focus:bg-white transition-all mb-2">
+                                <option value="" disabled selected>+ Tambah...</option>
+                            </select>
+                            <div id="division-tags" class="flex flex-wrap gap-2"></div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-semibold text-slate-600">Tingkat Resiko</label>
+                        <div class="grid grid-cols-3 gap-3" id="sensitivity-options"></div>
+                        <input type="hidden" id="sensitivity" value="medium">
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-semibold text-slate-600">Judul Masalah</label>
+                        <input type="text" id="concern" required placeholder="Judul singkat..." class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none">
+                    </div>
+                    
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between">
+                            <label class="text-xs font-semibold text-slate-600">Deskripsi Masalah</label>
+                            <button type="button" onclick="refineText('problem')" class="text-[10px] font-bold text-brand-600 hover:text-brand-700 bg-brand-50 px-2 py-0.5 rounded flex items-center gap-1 transition-colors"><i data-lucide="wand-2" class="w-3 h-3"></i> Auto-fix</button>
+                        </div>
+                        <textarea id="problem" required rows="4" placeholder="Detail kronologi..." class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none resize-none"></textarea>
+                    </div>
+                </div>
+
+                <!-- COL 2 -->
+                <div class="space-y-5 sm:space-y-6">
+                    <div class="flex items-center gap-2 text-brand-600 font-bold text-xs uppercase tracking-widest mb-2">
+                        <i data-lucide="activity" class="w-3.5 h-3.5"></i> Penanganan
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-semibold text-slate-600">PIC</label>
+                            <input type="text" id="pic" required placeholder="Nama PIC" class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-semibold text-slate-600">Tgl Kejadian</label>
+                            <input type="date" id="startDate" required class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none text-slate-600">
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between">
+                            <label class="text-xs font-semibold text-slate-600">Corrective Action</label>
+                            <button type="button" onclick="refineText('corrective')" class="text-[10px] font-bold text-brand-600 hover:text-brand-700 bg-brand-50 px-2 py-0.5 rounded flex items-center gap-1 transition-colors"><i data-lucide="wand-2" class="w-3 h-3"></i> Auto-fix</button>
+                        </div>
+                        <textarea id="corrective" required rows="2" placeholder="Solusi jangka pendek..." class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none resize-none"></textarea>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between">
+                            <label class="text-xs font-semibold text-slate-600">Preventive Action</label>
+                            <button type="button" onclick="refineText('preventive')" class="text-[10px] font-bold text-brand-600 hover:text-brand-700 bg-brand-50 px-2 py-0.5 rounded flex items-center gap-1 transition-colors"><i data-lucide="wand-2" class="w-3 h-3"></i> Auto-fix</button>
+                        </div>
+                        <textarea id="preventive" required rows="2" placeholder="Pencegahan jangka panjang..." class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none resize-none"></textarea>
+                    </div>
+
+                    <div class="bg-slate-50 p-5 rounded-xl border border-slate-200">
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-bold text-slate-400 uppercase">Due Date</label>
+                                <input type="date" id="dueDate" required class="w-full text-sm border border-slate-300 px-2 py-2 rounded-lg bg-white focus:ring-2 focus:ring-brand-500/20 outline-none text-slate-600">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-bold text-slate-400 uppercase">Actual Finish</label>
+                                <input type="date" id="completionDate" class="w-full text-sm border border-slate-300 px-2 py-2 rounded-lg bg-white focus:ring-2 focus:ring-brand-500/20 outline-none text-slate-600">
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase">Status Pekerjaan</label>
+                            <div class="grid grid-cols-2 gap-2" id="status-options"></div>
+                            <input type="hidden" id="status" value="planned">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="md:col-span-2 pt-6 border-t border-slate-100 flex justify-end gap-3 sticky bottom-0 bg-white pb-2">
+                    <button type="button" id="btn-cancel-modal" class="px-6 py-3 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold text-sm transition-colors">Batal</button>
+                    <button type="submit" class="px-8 py-3 rounded-xl bg-brand-600 text-white hover:bg-brand-700 font-bold text-sm shadow-lg shadow-brand-500/30 flex items-center gap-2 transition-all transform active:scale-95">
+                        <i data-lucide="save" class="w-4 h-4"></i> <span id="submit-text">Simpan Data</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- Firebase SDKs -->
     <script type="module">
@@ -318,13 +396,10 @@
         
         // --- DOM Elements ---
         const tableBody = document.getElementById('pica-table-body');
-        const formContainer = document.getElementById('form-container');
+        const modalOverlay = document.getElementById('modal-overlay');
         const form = document.getElementById('pica-form');
-        const filterPanel = document.getElementById('filter-panel');
         
         // --- Initialization ---
-        
-        // Populate Dropdowns
         const hubSelect = document.getElementById('hub');
         const filterHubSelect = document.getElementById('filter-hub');
         hubList.forEach(hub => {
@@ -356,64 +431,43 @@
             }
         });
 
-        // Realtime Data - HYBRID (Public + Private)
+        // Realtime Data - HYBRID
         function setupHybridListeners() {
-            // 1. Listener Public (Collaborative)
             const publicQ = collection(db, 'artifacts', appId, 'public', 'data', 'pica_entries');
             onSnapshot(publicQ, (snapshot) => {
-                publicData = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data(),
-                    source: 'public' // Mark as public
-                }));
+                publicData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), source: 'public' }));
                 mergeAndRender();
             });
 
-            // 2. Listener Private (Personal Legacy Data)
             const privateQ = collection(db, 'artifacts', appId, 'users', currentUser.uid, 'pica_entries');
             onSnapshot(privateQ, (snapshot) => {
-                privateData = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data(),
-                    source: 'private' // Mark as private
-                }));
+                privateData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), source: 'private' }));
                 mergeAndRender();
             });
         }
 
         function mergeAndRender() {
-            // Gabungkan kedua array
             entries = [...publicData, ...privateData];
-
-            // Sort: Newest Start Date first
             entries.sort((a, b) => {
                 const dateA = a.startDate ? new Date(a.startDate).getTime() : 0;
                 const dateB = b.startDate ? new Date(b.startDate).getTime() : 0;
-                if (dateB === dateA) {
-                    return (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0);
-                }
+                if (dateB === dateA) return (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0);
                 return dateB - dateA;
             });
-
             renderTable();
             updateStats();
         }
 
         // --- Render Functions ---
-
         function renderTable() {
-            // Filter Logic
             const searchTerm = document.getElementById('search-input').value.toLowerCase();
             const fHub = document.getElementById('filter-hub').value;
             const fDiv = document.getElementById('filter-division').value;
-            const fStatus = document.getElementById('filter-status').value;
             const fStart = document.getElementById('filter-start-date').value;
             const fEnd = document.getElementById('filter-end-date').value;
 
             const filtered = entries.filter(item => {
                 const itemDivs = Array.isArray(item.division) ? item.division.join(' ') : (item.division || '');
-                
-                // Search
                 const matchSearch = (
                     (item.concern || '').toLowerCase().includes(searchTerm) ||
                     (item.problem || '').toLowerCase().includes(searchTerm) ||
@@ -421,200 +475,153 @@
                     itemDivs.toLowerCase().includes(searchTerm) ||
                     (item.hub || '').toLowerCase().includes(searchTerm)
                 );
-
-                // Filters
                 const matchHub = fHub ? item.hub === fHub : true;
                 const matchDiv = fDiv ? (Array.isArray(item.division) ? item.division.includes(fDiv) : item.division === fDiv) : true;
-                const matchStatus = fStatus ? item.status === fStatus : true;
-                
                 let matchDate = true;
                 if (fStart) matchDate = matchDate && (item.startDate >= fStart);
                 if (fEnd) matchDate = matchDate && (item.startDate <= fEnd);
-
-                return matchSearch && matchHub && matchDiv && matchStatus && matchDate;
+                return matchSearch && matchHub && matchDiv && matchDate;
             });
 
-            // Update UI Counters
             document.getElementById('showing-text').innerText = `Showing ${filtered.length} records`;
             
-            // Count Active Filters
-            const activeFilters = [fHub, fDiv, fStatus, fStart, fEnd].filter(Boolean).length;
-            const badge = document.getElementById('filter-badge');
-            const btnFilter = document.getElementById('btn-toggle-filter');
-            if (activeFilters > 0) {
-                badge.innerText = activeFilters;
-                badge.classList.remove('hidden');
-                btnFilter.classList.add('bg-blue-50', 'border-blue-200', 'text-blue-700');
-                btnFilter.classList.remove('bg-white', 'text-slate-600');
-            } else {
-                badge.classList.add('hidden');
-                btnFilter.classList.remove('bg-blue-50', 'border-blue-200', 'text-blue-700');
-                btnFilter.classList.add('bg-white', 'text-slate-600');
-            }
-
-            // Render Rows
             if (filtered.length === 0) {
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="px-4 py-16 text-center text-slate-500">
-                            <div class="flex flex-col items-center gap-3">
-                                <div class="bg-slate-50 p-3 rounded-full"><i data-lucide="alert-circle" class="w-8 h-8 text-slate-300"></i></div>
-                                <p class="font-medium">Tidak ada data PICA ditemukan.</p>
-                            </div>
-                        </td>
-                    </tr>
-                `;
+                tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-20 text-center text-slate-400"><div class="flex flex-col items-center justify-center gap-3"><div class="bg-slate-50 p-4 rounded-full"><i data-lucide="search-x" class="w-8 h-8 text-slate-300"></i></div><span class="text-sm font-medium">No records found</span></div></td></tr>`;
             } else {
                 tableBody.innerHTML = filtered.map(item => {
                     const isFinished = item.status === 'done';
-                    const rowClass = isFinished 
-                        ? 'bg-slate-50/50 hover:bg-slate-100 text-slate-500' 
-                        : 'bg-white hover:bg-blue-50/30 text-slate-800';
-                    
+                    const rowClass = isFinished ? 'bg-slate-50/60 hover:bg-slate-100 text-slate-500' : 'bg-white hover:bg-brand-50/40 text-slate-700';
                     const duration = calculateDuration(item.startDate, item.completionDate);
                     const divs = Array.isArray(item.division) ? item.division.join(', ') : (item.division || '-');
-                    
-                    // Source Badge (Public vs Private)
-                    const sourceBadge = item.source === 'private' 
-                        ? `<span class="bg-slate-200 text-slate-600 text-[9px] px-1.5 py-0.5 rounded font-bold uppercase ml-2" title="Data Pribadi (Lama)">Personal</span>` 
-                        : `<span class="bg-blue-100 text-blue-600 text-[9px] px-1.5 py-0.5 rounded font-bold uppercase ml-2" title="Data Publik (Kolaborasi)">Public</span>`;
+                    const sourceBadge = item.source === 'private' ? `<span class="bg-slate-100 text-slate-500 text-[9px] px-1.5 py-0.5 rounded font-bold uppercase ml-2 tracking-wider">PRIBADI</span>` : '';
 
                     return `
-                    <tr class="group transition-colors border-b border-blue-200 ${rowClass}">
-                        <td class="px-4 py-4 align-top">
+                    <tr class="group transition-colors border-b border-slate-100 ${rowClass}">
+                        <td class="px-6 py-5 align-top">
                             <div class="flex flex-col gap-2">
                                 <div class="flex items-center">
-                                    <div>
-                                        <span class="block text-[10px] uppercase font-bold text-slate-400 mb-0.5">HUB</span>
-                                        <span class="font-bold text-sm ${isFinished ? 'text-slate-500' : 'text-slate-800'}">${item.hub || '-'}</span>
-                                    </div>
+                                    <span class="font-bold text-sm ${isFinished ? 'text-slate-500' : 'text-slate-800'}">${item.hub || '-'}</span>
                                     ${sourceBadge}
                                 </div>
-                                <div>
-                                    <span class="block text-[10px] uppercase font-bold text-slate-400 mb-0.5">Divisi</span>
-                                    <span class="text-xs font-semibold ${isFinished ? 'text-slate-400' : 'text-blue-700'}">${divs}</span>
-                                </div>
-                                <div class="pt-1">
-                                    ${getSensitivityBadge(item.sensitivity)}
-                                </div>
+                                <span class="text-xs font-medium text-slate-500">${divs}</span>
+                                <div class="pt-1">${getSensitivityBadge(item.sensitivity)}</div>
                             </div>
                         </td>
-                        <td class="px-4 py-4 align-top">
+                        <td class="px-6 py-5 align-top">
                             <div class="mb-2">
-                                <span class="font-bold block text-sm mb-1 ${isFinished ? 'text-slate-600' : 'text-slate-900'}">${item.concern || ''}</span>
-                                <p class="text-xs leading-relaxed whitespace-pre-wrap ${isFinished ? 'text-slate-400' : 'text-slate-600'}">${item.problem || ''}</p>
+                                <span class="font-bold block text-sm mb-1.5 ${isFinished ? 'text-slate-600' : 'text-slate-900'}">${item.concern || ''}</span>
+                                <p class="text-xs leading-relaxed whitespace-pre-wrap font-medium ${isFinished ? 'text-slate-400' : 'text-slate-600'}">${item.problem || ''}</p>
                             </div>
-                            <div class="flex items-center gap-2 mt-3 pt-3 border-t border-slate-100">
-                                <div class="h-5 w-5 rounded-full bg-slate-200 flex items-center justify-center text-[9px] font-bold text-slate-600">
-                                    ${item.pic ? item.pic.charAt(0).toUpperCase() : '?'}
-                                </div>
-                                <span class="text-xs font-medium text-slate-500">PIC: ${item.pic || '-'}</span>
+                            <div class="flex items-center gap-2 mt-4 pt-3 border-t border-slate-100/80">
+                                <div class="w-5 h-5 rounded-full bg-indigo-100 flex items-center justify-center text-[9px] font-bold text-indigo-700">${item.pic ? item.pic.charAt(0).toUpperCase() : '?'}</div>
+                                <span class="text-xs font-semibold text-slate-500">${item.pic || '-'}</span>
                             </div>
                         </td>
-                        <td class="px-4 py-4 align-top">
-                            <div class="space-y-3">
-                                <div class="relative pl-3 border-l-2 border-blue-200">
-                                    <span class="text-[9px] font-bold text-blue-600 uppercase block mb-0.5">Corrective</span>
+                        <td class="px-6 py-5 align-top">
+                            <div class="space-y-4">
+                                <div class="relative pl-3 border-l-[3px] border-brand-200">
+                                    <span class="text-[9px] font-bold text-brand-600 uppercase block mb-1 tracking-wider">Corrective</span>
                                     <p class="text-xs ${isFinished ? 'text-slate-400' : 'text-slate-700'}">${item.corrective || '-'}</p>
                                 </div>
-                                <div class="relative pl-3 border-l-2 border-emerald-200">
-                                    <span class="text-[9px] font-bold text-emerald-600 uppercase block mb-0.5">Preventive</span>
+                                <div class="relative pl-3 border-l-[3px] border-emerald-200">
+                                    <span class="text-[9px] font-bold text-emerald-600 uppercase block mb-1 tracking-wider">Preventive</span>
                                     <p class="text-xs ${isFinished ? 'text-slate-400' : 'text-slate-700'}">${item.preventive || '-'}</p>
                                 </div>
                             </div>
                         </td>
-                        <td class="px-4 py-4 align-top">
-                            <div class="flex flex-col gap-1.5 text-[11px]">
-                                <div class="flex justify-between items-center bg-slate-50 px-2 py-1 rounded border border-slate-100">
-                                    <span class="text-slate-400 font-medium">Start</span>
-                                    <span class="font-mono font-semibold text-slate-600">${formatDate(item.startDate)}</span>
+                        <td class="px-6 py-5 align-top">
+                            <div class="flex flex-col gap-2 text-[11px]">
+                                <div class="flex justify-between items-center bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-200">
+                                    <span class="text-slate-400 font-semibold uppercase tracking-wider text-[9px]">Start</span>
+                                    <span class="font-mono font-bold text-slate-600">${formatDate(item.startDate)}</span>
                                 </div>
-                                <div class="flex justify-between items-center bg-slate-50 px-2 py-1 rounded border border-slate-100">
-                                    <span class="text-slate-400 font-medium">Due</span>
-                                    <span class="font-mono font-semibold text-slate-600">${formatDate(item.dueDate)}</span>
+                                <div class="flex justify-between items-center bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-200">
+                                    <span class="text-slate-400 font-semibold uppercase tracking-wider text-[9px]">Due</span>
+                                    <span class="font-mono font-bold text-slate-600">${formatDate(item.dueDate)}</span>
                                 </div>
-                                <div class="flex justify-between items-center px-2 py-1 rounded border ${item.completionDate ? 'bg-emerald-50 border-emerald-100' : 'bg-slate-50 border-slate-100'}">
-                                    <span class="text-slate-400 font-medium">Actual</span>
+                                <div class="flex justify-between items-center px-2.5 py-1.5 rounded-lg border ${item.completionDate ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50 border-slate-200'}">
+                                    <span class="text-slate-400 font-semibold uppercase tracking-wider text-[9px]">Actual</span>
                                     <span class="font-mono font-bold ${item.completionDate ? 'text-emerald-700' : 'text-slate-300'}">${formatDate(item.completionDate)}</span>
                                 </div>
-                                ${duration ? `<div class="mt-1 text-center text-[10px] text-slate-400 font-medium">Lead Time: <span class="text-slate-800 font-bold">${duration} Hari</span></div>` : ''}
+                                ${duration ? `<div class="mt-1 text-center text-[10px] text-slate-400 font-semibold bg-slate-100 rounded py-0.5">Lead Time: <span class="text-slate-800">${duration} Hari</span></div>` : ''}
                             </div>
                         </td>
-                        <td class="px-4 py-4 align-top text-center pt-5">
+                        <td class="px-6 py-5 align-top text-center pt-6">
                             ${getStatusBadge(item.status)}
                         </td>
-                        <td class="px-4 py-4 align-top text-center pt-5">
-                            <div class="flex flex-col gap-2 items-center opacity-40 group-hover:opacity-100 transition-opacity">
-                                <button onclick="editEntry('${item.id}', '${item.source}')" class="text-blue-600 hover:text-blue-800 hover:bg-blue-50 p-1 rounded transition-colors" title="Edit">
-                                    <i data-lucide="edit-2" class="w-4 h-4"></i>
-                                </button>
-                                <button onclick="deleteEntry('${item.id}', '${item.source}')" class="text-slate-400 hover:text-rose-600 hover:bg-rose-50 p-1 rounded transition-colors" title="Hapus">
-                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                </button>
+                        <td class="px-6 py-5 align-top text-center pt-6">
+                            <div class="flex justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                <button onclick="editEntry('${item.id}', '${item.source}')" class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 flex items-center justify-center transition-colors shadow-sm" title="Edit"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+                                <button onclick="deleteEntry('${item.id}', '${item.source}')" class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 flex items-center justify-center transition-colors shadow-sm" title="Hapus"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                             </div>
                         </td>
-                    </tr>
-                    `;
+                    </tr>`;
                 }).join('');
             }
             lucide.createIcons();
         }
 
-        // --- Helpers ---
-
+        // --- Stats & Calculations ---
         function updateStats() {
-            document.getElementById('stat-total').innerText = entries.length;
-            document.getElementById('stat-waiting').innerText = entries.filter(e => e.status === 'waiting').length;
-            document.getElementById('stat-closed').innerText = entries.filter(e => e.status === 'done').length;
+            animateValue("kpi-total", entries.length);
+            animateValue("kpi-waiting", entries.filter(e => e.status === 'waiting').length);
+            animateValue("kpi-progress", entries.filter(e => e.status === 'progress').length);
+            animateValue("kpi-closed", entries.filter(e => e.status === 'done').length);
+        }
+
+        function animateValue(id, end) {
+            const obj = document.getElementById(id);
+            if(obj.innerText == end) return;
+            let start = parseInt(obj.innerText);
+            if(isNaN(start)) start = 0;
+            const duration = 500;
+            const range = end - start;
+            let startTime;
+            const step = (timestamp) => {
+                if (!startTime) startTime = timestamp;
+                const progress = Math.min((timestamp - startTime) / duration, 1);
+                obj.innerText = Math.floor(progress * range + start);
+                if (progress < 1) window.requestAnimationFrame(step);
+            };
+            window.requestAnimationFrame(step);
         }
 
         function formatDate(dateStr) {
             if (!dateStr) return '-';
-            const d = new Date(dateStr);
-            return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' });
+            return new Date(dateStr).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' });
         }
 
         function calculateDuration(start, end) {
             if (!start || !end) return null;
-            const s = new Date(start);
-            const e = new Date(end);
-            const diffTime = Math.abs(e - s);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-            return diffDays === 0 ? 1 : diffDays;
+            return Math.ceil(Math.abs(new Date(end) - new Date(start)) / (1000 * 60 * 60 * 24)) || 1;
         }
 
+        // --- Badges ---
         function getStatusBadge(status) {
-            const configs = {
-                planned: { class: "bg-slate-100 text-slate-600 border-slate-200", icon: "circle", label: "Planned" },
-                waiting: { class: "bg-purple-50 text-purple-700 border-purple-200", icon: "pause-circle", label: "Waiting" },
-                progress: { class: "bg-blue-50 text-blue-700 border-blue-200", icon: "loader-2", label: "On Progress" },
-                done: { class: "bg-emerald-50 text-emerald-700 border-emerald-200", icon: "check-circle-2", label: "Closed" }
+            const map = {
+                planned: { cls: "bg-slate-100 text-slate-600 border-slate-200", icon: "circle" },
+                waiting: { cls: "bg-purple-50 text-purple-700 border-purple-200", icon: "pause-circle", anim: "animate-pulse" },
+                progress: { cls: "bg-brand-50 text-brand-700 border-brand-200", icon: "loader-2", anim: "animate-spin" },
+                done: { cls: "bg-emerald-50 text-emerald-700 border-emerald-200", icon: "check-circle-2" }
             };
-            const c = configs[status] || configs.planned;
-            return `<span class="px-2.5 py-1 rounded-md text-[11px] font-semibold border uppercase tracking-wide whitespace-nowrap inline-flex items-center shadow-sm ${c.class}">
-                <i data-lucide="${c.icon}" class="w-3 h-3 mr-1.5 ${status === 'progress' ? 'animate-spin' : ''}"></i> ${c.label}
-            </span>`;
+            const c = map[status] || map.planned;
+            return `<span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border shadow-sm ${c.cls}"><i data-lucide="${c.icon}" class="w-3.5 h-3.5 mr-1.5 ${c.anim||''}"></i>${status}</span>`;
         }
 
         function getSensitivityBadge(level) {
-            const configs = {
-                low: { class: "text-emerald-700 bg-emerald-50 border-emerald-200", icon: "check-circle", label: "LOW" },
-                medium: { class: "text-amber-700 bg-amber-50 border-amber-200", icon: "alert-circle", label: "MEDIUM" },
-                high: { class: "text-rose-700 bg-rose-50 border-rose-200", icon: "shield-alert", label: "HIGH" }
+            const map = {
+                low: { cls: "bg-emerald-50 text-emerald-700 border-emerald-200", icon: "shield-check" },
+                medium: { cls: "bg-amber-50 text-amber-700 border-amber-200", icon: "alert-triangle" },
+                high: { cls: "bg-rose-50 text-rose-700 border-rose-200", icon: "siren" }
             };
-            const c = configs[level] || configs.medium;
-            return `<span class="flex items-center gap-1.5 w-fit px-2 py-0.5 rounded-full text-[10px] font-bold border ${c.class}">
-                <i data-lucide="${c.icon}" class="w-3 h-3"></i> ${c.label}
-            </span>`;
+            const c = map[level] || map.medium;
+            return `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border ${c.cls}"><i data-lucide="${c.icon}" class="w-3 h-3 mr-1"></i>${level}</span>`;
         }
 
-        // --- Interaction Logic ---
-
-        // Multi-select Division
+        // --- Forms & Interaction ---
         divisionSelect.addEventListener('change', (e) => {
-            const val = e.target.value;
-            if(val && !selectedDivisions.includes(val)) {
-                selectedDivisions.push(val);
+            if(e.target.value && !selectedDivisions.includes(e.target.value)) {
+                selectedDivisions.push(e.target.value);
                 renderDivisionTags();
             }
             e.target.value = "";
@@ -622,11 +629,7 @@
 
         function renderDivisionTags() {
             const container = document.getElementById('division-tags');
-            container.innerHTML = selectedDivisions.map(div => `
-                <span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded-md text-xs font-bold flex items-center gap-1 border border-blue-100">
-                    ${div} <button type="button" onclick="removeDiv('${div}')" class="hover:text-red-600 flex items-center"><i data-lucide="x-circle" class="w-3 h-3"></i></button>
-                </span>
-            `).join('');
+            container.innerHTML = selectedDivisions.map(div => `<span class="bg-brand-50 text-brand-700 px-2.5 py-1 rounded-lg text-xs font-bold border border-brand-100 flex items-center gap-1.5 shadow-sm">${div} <button type="button" onclick="removeDiv('${div}')" class="hover:text-red-500"><i data-lucide="x" class="w-3 h-3"></i></button></span>`).join('');
             lucide.createIcons();
         }
 
@@ -635,146 +638,68 @@
             renderDivisionTags();
         };
 
-        // UI Buttons
-        document.getElementById('btn-toggle-filter').addEventListener('click', () => {
-            filterPanel.classList.toggle('hidden');
-        });
+        function toggleModal(show) {
+            const m = document.getElementById('modal-overlay');
+            if(show) { resetForm(); m.classList.remove('hidden'); }
+            else { m.classList.add('hidden'); }
+        }
 
-        document.getElementById('btn-toggle-form').addEventListener('click', () => {
-            resetForm();
-            formContainer.classList.toggle('hidden');
-            if(!formContainer.classList.contains('hidden')) {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-        });
-
-        document.getElementById('btn-cancel').addEventListener('click', () => {
-            formContainer.classList.add('hidden');
-            resetForm();
-        });
+        document.getElementById('btn-open-modal').addEventListener('click', () => toggleModal(true));
+        document.getElementById('btn-close-modal').addEventListener('click', () => toggleModal(false));
+        document.getElementById('btn-cancel-modal').addEventListener('click', () => toggleModal(false));
+        document.getElementById('modal-overlay').addEventListener('click', (e) => { if(e.target === document.getElementById('modal-overlay')) toggleModal(false); });
 
         document.getElementById('btn-reset-filter').addEventListener('click', () => {
-            document.getElementById('filter-hub').value = "";
-            document.getElementById('filter-division').value = "";
-            document.getElementById('filter-status').value = "";
-            document.getElementById('filter-start-date').value = "";
-            document.getElementById('filter-end-date').value = "";
-            document.getElementById('search-input').value = "";
+            ['filter-hub','filter-division','filter-start-date','filter-end-date','search-input'].forEach(id => document.getElementById(id).value = "");
             renderTable();
         });
 
-        // Search Input
-        document.getElementById('search-input').addEventListener('input', renderTable);
-        ['filter-hub', 'filter-division', 'filter-status', 'filter-start-date', 'filter-end-date'].forEach(id => {
-            document.getElementById(id).addEventListener('change', renderTable);
+        ['search-input','filter-hub','filter-division','filter-start-date','filter-end-date'].forEach(id => {
+            document.getElementById(id).addEventListener(id === 'search-input' ? 'input' : 'change', renderTable);
         });
 
-        // Status & Sensitivity Buttons
         function renderOptionButtons() {
-            // Sensitivity
             const sLevels = ['low', 'medium', 'high'];
-            const sContainer = document.getElementById('sensitivity-options');
-            const currentSens = document.getElementById('sensitivity').value;
-            
-            sContainer.innerHTML = sLevels.map(lvl => {
-                let cls = 'bg-white border-slate-200 text-slate-400 hover:bg-slate-50';
-                let icon = 'circle';
-                if (lvl === 'low') icon = 'check-circle';
-                if (lvl === 'medium') icon = 'alert-circle';
-                if (lvl === 'high') icon = 'shield-alert';
-
-                if(currentSens === lvl) {
-                    if(lvl === 'low') cls = 'bg-emerald-50 border-emerald-500 text-emerald-700 ring-1 ring-emerald-500';
-                    if(lvl === 'medium') cls = 'bg-amber-50 border-amber-500 text-amber-700 ring-1 ring-amber-500';
-                    if(lvl === 'high') cls = 'bg-rose-50 border-rose-500 text-rose-700 ring-1 ring-rose-500';
-                }
-                return `<button type="button" onclick="setSensitivity('${lvl}')" class="flex items-center justify-center gap-2 py-2 rounded-lg border text-xs font-bold uppercase transition-all ${cls}">
-                    <i data-lucide="${icon}" class="w-3.5 h-3.5"></i> ${lvl}
-                </button>`;
+            document.getElementById('sensitivity-options').innerHTML = sLevels.map(lvl => {
+                const active = document.getElementById('sensitivity').value === lvl;
+                let cls = active ? 
+                    (lvl==='low'?'bg-emerald-500 text-white shadow-emerald-200': lvl==='medium'?'bg-amber-500 text-white shadow-amber-200':'bg-rose-500 text-white shadow-rose-200') + ' shadow-lg scale-105 border-transparent' 
+                    : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50';
+                return `<button type="button" onclick="setSensitivity('${lvl}')" class="flex items-center justify-center gap-2 py-2.5 rounded-xl border text-xs font-bold uppercase transition-all duration-300 ${cls}">${lvl}</button>`;
             }).join('');
 
-            // Status
             const stLevels = ['planned', 'waiting', 'progress', 'done'];
-            const stContainer = document.getElementById('status-options');
-            const currentStat = document.getElementById('status').value;
-
-            stContainer.innerHTML = stLevels.map(st => {
-                let baseCls = 'flex items-center justify-center gap-2 py-2 px-2 rounded-lg border text-xs font-semibold capitalize transition-all duration-300 transform';
-                let colorCls = 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:scale-105';
-                let iconName = 'circle';
-                let iconCls = 'w-3.5 h-3.5';
-
-                // Icon & Animation Logic
-                if(st === 'planned') {
-                    iconName = 'circle';
-                } else if(st === 'waiting') {
-                    iconName = 'pause-circle';
-                    if(currentStat === st) iconCls += ' animate-pulse';
-                } else if(st === 'progress') {
-                    iconName = 'loader-2';
-                    iconCls += ' animate-spin';
-                } else if(st === 'done') {
-                    iconName = 'check-circle-2';
-                }
-
-                // Active State Styling
-                if(currentStat === st) {
-                    if(st === 'planned') colorCls = 'bg-slate-600 text-white border-slate-600 shadow-md ring-2 ring-slate-200 ring-offset-1 scale-105';
-                    if(st === 'waiting') colorCls = 'bg-purple-600 text-white border-purple-600 shadow-md ring-2 ring-purple-200 ring-offset-1 scale-105';
-                    if(st === 'progress') colorCls = 'bg-blue-600 text-white border-blue-600 shadow-md ring-2 ring-blue-200 ring-offset-1 scale-105';
-                    if(st === 'done') colorCls = 'bg-emerald-600 text-white border-emerald-600 shadow-md ring-2 ring-emerald-200 ring-offset-1 scale-105';
-                }
-
-                return `<button type="button" onclick="setStatus('${st}')" class="${baseCls} ${colorCls}">
-                    <i data-lucide="${iconName}" class="${iconCls}"></i> ${st}
-                </button>`;
+            document.getElementById('status-options').innerHTML = stLevels.map(st => {
+                const active = document.getElementById('status').value === st;
+                let cls = active ? 
+                    (st==='planned'?'bg-slate-600': st==='waiting'?'bg-purple-600': st==='progress'?'bg-brand-600':'bg-emerald-600') + ' text-white shadow-lg scale-105 border-transparent' 
+                    : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50';
+                return `<button type="button" onclick="setStatus('${st}')" class="flex items-center justify-center gap-2 py-2.5 rounded-xl border text-xs font-bold uppercase transition-all duration-300 ${cls}">${st}</button>`;
             }).join('');
-            
-            lucide.createIcons(); // Important: Re-render icons
         }
 
-        window.setSensitivity = (val) => {
-            document.getElementById('sensitivity').value = val;
-            renderOptionButtons();
-        };
-
-        window.setStatus = (val) => {
-            document.getElementById('status').value = val;
-            renderOptionButtons();
-        };
-
-        // Initial render of buttons
+        window.setSensitivity = (v) => { document.getElementById('sensitivity').value = v; renderOptionButtons(); };
+        window.setStatus = (v) => { document.getElementById('status').value = v; renderOptionButtons(); };
         renderOptionButtons();
 
-        // Auto-fix Logic (Global)
         window.refineText = (id) => {
             const el = document.getElementById(id);
-            if(!el) return;
-            let text = el.value;
-            // Remove extra spaces
-            text = text.replace(/\s+/g, ' ').trim();
-            // Add space after period
-            text = text.replace(/\.([a-zA-Z])/g, '. $1');
-            // Capitalize first letter
-            if(text.length > 0) text = text.charAt(0).toUpperCase() + text.slice(1);
-            // Capitalize after punctuation
-            text = text.replace(/([.?!]\s+)([a-z])/g, (match) => match.toUpperCase());
-            // Ensure final period
-            if (text.length > 0 && !/[.?!]$/.test(text)) text += '.';
-            el.value = text;
+            let t = el.value.replace(/\s+/g,' ').trim().replace(/\.([a-zA-Z])/g,'. $1');
+            if(t) t = t.charAt(0).toUpperCase() + t.slice(1);
+            t = t.replace(/([.?!]\s+)([a-z])/g, (m) => m.toUpperCase());
+            if(t && !/[.?!]$/.test(t)) t += '.';
+            el.value = t;
         };
 
-        // Form Submit
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            if (!currentUser) return;
-            if (selectedDivisions.length === 0) {
-                alert("Harap pilih minimal satu Divisi.");
-                return;
-            }
-
-            const editingId = document.getElementById('entry-id').value;
-            const source = document.getElementById('entry-source').value || 'public'; // Default to public
+            if(!currentUser || selectedDivisions.length === 0) return alert(selectedDivisions.length===0?"Pilih Divisi":"Login required");
+            
+            const btn = form.querySelector('button[type="submit"]');
+            const oldHtml = btn.innerHTML;
+            btn.innerHTML = `<i data-lucide="loader-2" class="animate-spin w-4 h-4"></i> Saving...`;
+            btn.disabled = true;
+            lucide.createIcons();
 
             const data = {
                 hub: document.getElementById('hub').value,
@@ -792,103 +717,60 @@
                 updatedAt: serverTimestamp()
             };
 
-            const btn = form.querySelector('button[type="submit"]');
-            const originalContent = btn.innerHTML;
-            btn.innerHTML = 'Saving...';
-            btn.disabled = true;
-
             try {
-                // Determine Path based on Source
-                let collectionPath;
-                if (source === 'private') {
-                    collectionPath = collection(db, 'artifacts', appId, 'users', currentUser.uid, 'pica_entries');
-                } else {
-                    collectionPath = collection(db, 'artifacts', appId, 'public', 'data', 'pica_entries');
-                }
-
-                if (editingId) {
-                    await updateDoc(doc(collectionPath, editingId), data);
-                } else {
-                    data.createdAt = serverTimestamp();
-                    // New data always goes to PUBLIC by default in this version
-                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'pica_entries'), data);
-                }
-                formContainer.classList.add('hidden');
-                resetForm();
-            } catch (err) {
-                console.error(err);
-                alert("Gagal menyimpan data.");
-            } finally {
-                btn.innerHTML = originalContent;
-                btn.disabled = false;
-            }
+                const id = document.getElementById('entry-id').value;
+                const path = document.getElementById('entry-source').value === 'private' ? 
+                    collection(db, 'artifacts', appId, 'users', currentUser.uid, 'pica_entries') : 
+                    collection(db, 'artifacts', appId, 'public', 'data', 'pica_entries');
+                
+                if(id) await updateDoc(doc(path, id), data);
+                else { data.createdAt = serverTimestamp(); await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'pica_entries'), data); }
+                toggleModal(false);
+            } catch(e) { console.error(e); alert('Error saving'); }
+            finally { btn.innerHTML = oldHtml; btn.disabled = false; lucide.createIcons(); }
         });
 
-        // Edit Entry (Modified for Source)
         window.editEntry = (id, source) => {
             const item = entries.find(e => e.id === id);
-            if (!item) return;
-
-            document.getElementById('entry-id').value = item.id;
-            document.getElementById('entry-source').value = source || 'public'; // Store source
-            
-            document.getElementById('hub').value = item.hub || '';
-            selectedDivisions = Array.isArray(item.division) ? item.division : [item.division];
-            document.getElementById('sensitivity').value = item.sensitivity || 'medium';
-            document.getElementById('concern').value = item.concern || '';
-            document.getElementById('problem').value = item.problem || '';
-            document.getElementById('pic').value = item.pic || '';
-            document.getElementById('startDate').value = item.startDate || '';
-            document.getElementById('corrective').value = item.corrective || '';
-            document.getElementById('preventive').value = item.preventive || '';
-            document.getElementById('dueDate').value = item.dueDate || '';
-            document.getElementById('completionDate').value = item.completionDate || '';
-            document.getElementById('status').value = item.status || 'planned';
-
-            renderDivisionTags();
-            renderOptionButtons();
-            
-            const badge = source === 'private' ? '<span class="bg-slate-200 text-slate-600 text-xs px-2 py-0.5 rounded ml-2">PERSONAL</span>' : '';
-            document.getElementById('form-title').innerHTML = `<i data-lucide="edit-2" class="text-blue-200 w-5 h-5"></i> Edit Data PICA ${badge}`;
-            document.getElementById('submit-text').innerText = 'Update Data';
-            
-            formContainer.classList.remove('hidden');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            lucide.createIcons();
+            if(!item) return;
+            document.getElementById('entry-id').value = id;
+            document.getElementById('entry-source').value = source;
+            document.getElementById('hub').value = item.hub||'';
+            selectedDivisions = Array.isArray(item.division)?item.division:[item.division];
+            document.getElementById('sensitivity').value = item.sensitivity||'medium';
+            document.getElementById('concern').value = item.concern||'';
+            document.getElementById('problem').value = item.problem||'';
+            document.getElementById('pic').value = item.pic||'';
+            document.getElementById('startDate').value = item.startDate||'';
+            document.getElementById('corrective').value = item.corrective||'';
+            document.getElementById('preventive').value = item.preventive||'';
+            document.getElementById('dueDate').value = item.dueDate||'';
+            document.getElementById('completionDate').value = item.completionDate||'';
+            document.getElementById('status').value = item.status||'planned';
+            renderDivisionTags(); renderOptionButtons();
+            toggleModal(true);
         };
 
-        // Delete Entry (Modified for Source)
         window.deleteEntry = async (id, source) => {
-            if(!confirm("Hapus data ini?")) return;
-            try {
-                let docRef;
-                if (source === 'private') {
-                    docRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'pica_entries', id);
-                } else {
-                    docRef = doc(db, 'artifacts', appId, 'public', 'data', 'pica_entries', id);
-                }
-                await deleteDoc(docRef);
-            } catch (e) { console.error(e); }
+            if(!confirm('Hapus?')) return;
+            const path = source === 'private' ? 
+                doc(db, 'artifacts', appId, 'users', currentUser.uid, 'pica_entries', id) : 
+                doc(db, 'artifacts', appId, 'public', 'data', 'pica_entries', id);
+            try { await deleteDoc(path); } catch(e) { console.error(e); }
         };
 
         function resetForm() {
             form.reset();
             document.getElementById('entry-id').value = "";
-            document.getElementById('entry-source').value = "public"; // Reset to public for new entries
+            document.getElementById('entry-source').value = "public";
             selectedDivisions = [];
             renderDivisionTags();
             document.getElementById('sensitivity').value = 'medium';
             document.getElementById('status').value = 'planned';
             renderOptionButtons();
-            
-            document.getElementById('form-title').innerHTML = '<i data-lucide="plus" class="text-blue-200 w-5 h-5"></i> Input Data PICA Baru';
-            document.getElementById('submit-text').innerText = 'Submit Data';
-            lucide.createIcons();
         }
 
-        // Init Icons
         lucide.createIcons();
-
     </script>
 </body>
 </html>
