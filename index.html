@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PICA System Professional</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Custom Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Custom Scrollbar for Table */
+        .custom-scrollbar::-webkit-scrollbar { height: 8px; width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Animation Classes */
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- HEADER -->
+    <header class="bg-blue-900 border-b border-blue-800 sticky top-0 z-50 shadow-lg">
+        <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="bg-white/10 p-2 rounded-lg backdrop-blur-sm border border-white/20 shadow-sm">
+                    <i data-lucide="file-spreadsheet" class="text-white w-5 h-5"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-white leading-none">PICA SYSTEM</h1>
+                    <p class="text-[11px] text-blue-200 font-medium mt-1 tracking-wide">Problem Identification & Corrective Action</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-6 text-sm">
+                <div class="hidden md:flex items-center gap-8 bg-blue-800 px-4 py-1.5 rounded-lg border border-blue-700 shadow-inner">
+                    <div class="flex flex-col items-center">
+                        <span class="text-[10px] uppercase font-bold text-blue-300 tracking-wider">Total</span>
+                        <span id="stat-total" class="font-bold text-white text-lg leading-none">0</span>
+                    </div>
+                    <div class="h-6 w-px bg-blue-700"></div>
+                    <div class="flex flex-col items-center">
+                        <span class="text-[10px] uppercase font-bold text-purple-300 tracking-wider flex items-center gap-1">Waiting</span>
+                        <span id="stat-waiting" class="font-bold text-white text-lg leading-none">0</span>
+                    </div>
+                    <div class="h-6 w-px bg-blue-700"></div>
+                    <div class="flex flex-col items-center">
+                        <span class="text-[10px] uppercase font-bold text-emerald-300 tracking-wider">Closed</span>
+                        <span id="stat-closed" class="font-bold text-white text-lg leading-none">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-6">
+
+        <!-- Controls Bar -->
+        <div class="flex flex-col gap-4">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                
+                <!-- Search & Filter Toggle -->
+                <div class="flex items-center gap-3 w-full md:flex-1">
+                    <div class="relative w-full max-w-xl">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-lucide="search" class="text-slate-400 w-4 h-4"></i>
+                        </div>
+                        <input type="text" id="search-input" placeholder="Cari Concern, ID, PIC, atau Problem..." class="pl-10 pr-4 py-2.5 w-full bg-slate-50 border-slate-200 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none">
+                    </div>
+                    <button id="btn-toggle-filter" class="px-4 py-2.5 rounded-lg border text-sm font-medium flex items-center gap-2 transition-all shadow-sm bg-white border-slate-200 text-slate-600 hover:bg-slate-50">
+                        <i data-lucide="filter" class="w-4 h-4"></i>
+                        <span class="hidden sm:inline">Filter</span>
+                        <span id="filter-badge" class="hidden bg-blue-600 text-white text-[10px] h-5 min-w-[20px] rounded-full flex items-center justify-center px-1">0</span>
+                    </button>
+                </div>
+                
+                <!-- Add Button -->
+                <button id="btn-toggle-form" class="bg-blue-700 text-white hover:bg-blue-800 border-transparent shadow-md hover:shadow-lg px-6 py-2.5 rounded-lg font-semibold text-sm transition-all flex items-center gap-2 w-full md:w-auto justify-center border">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>Input PICA Baru</span>
+                </button>
+            </div>
+
+            <!-- Filters Panel (Hidden by default) -->
+            <div id="filter-panel" class="hidden bg-white p-5 rounded-xl border border-blue-100 shadow-lg grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 fade-in relative z-10">
+                <div class="lg:col-span-1">
+                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1.5">Lokasi (HUB)</label>
+                    <select id="filter-hub" class="w-full text-sm bg-slate-50 border-slate-200 rounded-md focus:ring-blue-500 focus:border-blue-500 py-2 px-2 outline-none">
+                        <option value="">Semua HUB</option>
+                        <!-- Populated by JS -->
+                    </select>
+                </div>
+                <div class="lg:col-span-1">
+                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1.5">Divisi</label>
+                    <select id="filter-division" class="w-full text-sm bg-slate-50 border-slate-200 rounded-md focus:ring-blue-500 focus:border-blue-500 py-2 px-2 outline-none">
+                        <option value="">Semua Divisi</option>
+                        <!-- Populated by JS -->
+                    </select>
+                </div>
+                <div class="lg:col-span-1">
+                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1.5">Status PICA</label>
+                    <select id="filter-status" class="w-full text-sm bg-slate-50 border-slate-200 rounded-md focus:ring-blue-500 focus:border-blue-500 py-2 px-2 outline-none">
+                        <option value="">Semua Status</option>
+                        <option value="planned">Planned</option>
+                        <option value="waiting">Waiting</option>
+                        <option value="progress">On Progress</option>
+                        <option value="done">Done / Closed</option>
+                    </select>
+                </div>
+                <div class="lg:col-span-1">
+                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1.5">Dari Tanggal</label>
+                    <input type="date" id="filter-start-date" class="w-full text-sm bg-slate-50 border-slate-200 rounded-md focus:ring-blue-500 focus:border-blue-500 py-2 px-2 outline-none">
+                </div>
+                <div class="lg:col-span-1">
+                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1.5">Sampai Tanggal</label>
+                    <input type="date" id="filter-end-date" class="w-full text-sm bg-slate-50 border-slate-200 rounded-md focus:ring-blue-500 focus:border-blue-500 py-2 px-2 outline-none">
+                </div>
+                <div class="flex items-end lg:col-span-1">
+                    <button id="btn-reset-filter" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-md text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors border border-slate-200">
+                        <i data-lucide="refresh-cw" class="w-3 h-3"></i> Reset Filter
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- FORM SECTION (Hidden by default) -->
+        <div id="form-container" class="hidden bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden fade-in mb-8">
+            <div class="bg-gradient-to-r from-blue-700 to-blue-600 px-6 py-4 flex justify-between items-center shadow-sm">
+                <h3 id="form-title" class="font-bold text-white flex items-center gap-2 text-lg">
+                    <i data-lucide="plus" class="text-blue-200 w-5 h-5"></i> Input Data PICA Baru
+                </h3>
+            </div>
+            
+            <form id="pica-form" class="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+                <input type="hidden" id="entry-id"> <!-- Hidden ID for Edit -->
+                <input type="hidden" id="entry-source" value="public"> <!-- Hidden Source (public/private) -->
+
+                <!-- SECTION 1: IDENTITY -->
+                <div class="space-y-5">
+                    <div class="flex items-center gap-2 text-blue-700 font-bold uppercase text-xs tracking-wider border-b border-blue-100 pb-2 mb-4">
+                        <i data-lucide="map-pin" class="w-3 h-3"></i> Identitas & Lokasi
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1.5">HUB (Lokasi)</label>
+                            <select id="hub" required class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white">
+                                <option value="">Pilih HUB...</option>
+                                <!-- Populated by JS -->
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1.5">Divisi (Multi-select)</label>
+                            <select id="division-select" class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none bg-white mb-2">
+                                <option value="" disabled selected>+ Tambah Divisi...</option>
+                                <!-- Populated by JS -->
+                            </select>
+                            <div id="division-tags" class="flex flex-wrap gap-1.5 min-h-[28px]">
+                                <!-- Tags will appear here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Sensitivitas (Resiko)</label>
+                        <div class="grid grid-cols-3 gap-2" id="sensitivity-options">
+                            <!-- Buttons generated by JS -->
+                        </div>
+                        <input type="hidden" id="sensitivity" value="medium">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Concern (Judul Masalah)</label>
+                        <input type="text" id="concern" required placeholder="Judul singkat masalah..." class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    
+                    <div>
+                        <div class="flex justify-between">
+                            <label class="block text-sm font-medium text-slate-700 mb-1.5">Problem Identification</label>
+                            <button type="button" onclick="refineText('problem')" class="text-xs text-blue-600 hover:underline flex items-center gap-1"><i data-lucide="wand-2" class="w-3 h-3"></i> Auto-fix</button>
+                        </div>
+                        <textarea id="problem" required rows="4" placeholder="Jelaskan detail masalah..." class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none resize-none"></textarea>
+                    </div>
+                </div>
+
+                <!-- SECTION 2: ACTION & TIMELINE -->
+                <div class="space-y-5">
+                    <div class="flex items-center gap-2 text-blue-700 font-bold uppercase text-xs tracking-wider border-b border-blue-100 pb-2 mb-4">
+                        <i data-lucide="activity" class="w-3 h-3"></i> Action Plan & Timeline
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1.5">PIC</label>
+                            <input type="text" id="pic" required placeholder="Nama PIC" class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1.5">Tgl Kejadian</label>
+                            <input type="date" id="startDate" required class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between">
+                            <label class="block text-sm font-medium text-slate-700 mb-1.5">Corrective Action</label>
+                            <button type="button" onclick="refineText('corrective')" class="text-xs text-blue-600 hover:underline flex items-center gap-1"><i data-lucide="wand-2" class="w-3 h-3"></i> Auto-fix</button>
+                        </div>
+                        <textarea id="corrective" required rows="2" placeholder="Tindakan perbaikan..." class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none resize-none"></textarea>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between">
+                            <label class="block text-sm font-medium text-slate-700 mb-1.5">Preventive Action</label>
+                            <button type="button" onclick="refineText('preventive')" class="text-xs text-blue-600 hover:underline flex items-center gap-1"><i data-lucide="wand-2" class="w-3 h-3"></i> Auto-fix</button>
+                        </div>
+                        <textarea id="preventive" required rows="2" placeholder="Tindakan pencegahan..." class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none resize-none"></textarea>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Due Date</label>
+                                <input type="date" id="dueDate" required class="w-full text-sm border border-slate-300 px-2 py-1.5 rounded-md focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Actual Finish</label>
+                                <input type="date" id="completionDate" class="w-full text-sm border border-slate-300 px-2 py-1.5 rounded-md focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Status Pekerjaan</label>
+                            <div class="grid grid-cols-2 gap-2" id="status-options">
+                                <!-- Buttons generated by JS -->
+                            </div>
+                            <input type="hidden" id="status" value="planned">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="md:col-span-2 pt-4 border-t border-slate-100 flex justify-end gap-3">
+                    <button type="button" id="btn-cancel" class="px-6 py-2.5 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50 font-medium text-sm transition-colors">Batal</button>
+                    <button type="submit" class="px-8 py-2.5 rounded-lg bg-blue-700 text-white hover:bg-blue-800 font-bold text-sm shadow-md flex items-center gap-2 transition-all transform hover:translate-y-px">
+                        <i data-lucide="save" class="w-4 h-4"></i> <span id="submit-text">Submit Data</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- TABLE SECTION -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col mb-10">
+            <div class="overflow-x-auto custom-scrollbar">
+                <table class="w-full text-sm text-left border-collapse relative">
+                    <thead class="bg-blue-900 text-white font-bold uppercase text-[10px] tracking-wider border-b border-blue-800 sticky top-0 z-20 shadow-sm">
+                        <tr>
+                            <th class="px-4 py-3 w-40 bg-blue-900">Identity & Location</th>
+                            <th class="px-4 py-3 min-w-[300px] bg-blue-900">Problem Details</th>
+                            <th class="px-4 py-3 min-w-[280px] bg-blue-900">Action Plan</th>
+                            <th class="px-4 py-3 w-32 bg-blue-900">Timeline</th>
+                            <th class="px-4 py-3 w-28 text-center bg-blue-900">Status</th>
+                            <th class="px-4 py-3 w-20 text-center bg-blue-900">Opt</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pica-table-body" class="divide-y divide-slate-100">
+                        <!-- Rows will be populated by JS -->
+                        <tr>
+                            <td colspan="6" class="px-4 py-16 text-center text-slate-500">
+                                <div class="flex justify-center mb-2"><i data-lucide="loader-2" class="animate-spin w-8 h-8 text-blue-500"></i></div>
+                                Memuat data (Hybrid)...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="bg-slate-50 px-6 py-3 border-t border-slate-200 flex justify-between items-center text-xs text-slate-500">
+                <span id="showing-text">Showing 0 records</span>
+                <span>PICA System v2.0 &bull; <strong>Hybrid Mode (Pribadi & Publik)</strong></span>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+
+        // --- Config ---
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // --- Data Lists ---
+        const divisionList = ["GA", "HC", "Facility", "Finance", "Transport", "Operation", "IT", "Network", "QA"];
+        const hubList = ["Makassar", "Balikpapan", "Banjarmasin", "Manado", "Palangkaraya"];
+
+        // --- State ---
+        let currentUser = null;
+        let entries = [];
+        let publicData = [];
+        let privateData = [];
+        let selectedDivisions = [];
+        
+        // --- DOM Elements ---
+        const tableBody = document.getElementById('pica-table-body');
+        const formContainer = document.getElementById('form-container');
+        const form = document.getElementById('pica-form');
+        const filterPanel = document.getElementById('filter-panel');
+        
+        // --- Initialization ---
+        
+        // Populate Dropdowns
+        const hubSelect = document.getElementById('hub');
+        const filterHubSelect = document.getElementById('filter-hub');
+        hubList.forEach(hub => {
+            hubSelect.add(new Option(hub, hub));
+            filterHubSelect.add(new Option(hub, hub));
+        });
+
+        const divisionSelect = document.getElementById('division-select');
+        const filterDivisionSelect = document.getElementById('filter-division');
+        divisionList.forEach(div => {
+            divisionSelect.add(new Option(div, div));
+            filterDivisionSelect.add(new Option(div, div));
+        });
+
+        // Auth Logic
+        const initAuth = async () => {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+                await signInAnonymously(auth);
+            }
+        };
+        initAuth();
+
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            if (user) {
+                setupHybridListeners();
+            }
+        });
+
+        // Realtime Data - HYBRID (Public + Private)
+        function setupHybridListeners() {
+            // 1. Listener Public (Collaborative)
+            const publicQ = collection(db, 'artifacts', appId, 'public', 'data', 'pica_entries');
+            onSnapshot(publicQ, (snapshot) => {
+                publicData = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data(),
+                    source: 'public' // Mark as public
+                }));
+                mergeAndRender();
+            });
+
+            // 2. Listener Private (Personal Legacy Data)
+            const privateQ = collection(db, 'artifacts', appId, 'users', currentUser.uid, 'pica_entries');
+            onSnapshot(privateQ, (snapshot) => {
+                privateData = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data(),
+                    source: 'private' // Mark as private
+                }));
+                mergeAndRender();
+            });
+        }
+
+        function mergeAndRender() {
+            // Gabungkan kedua array
+            entries = [...publicData, ...privateData];
+
+            // Sort: Newest Start Date first
+            entries.sort((a, b) => {
+                const dateA = a.startDate ? new Date(a.startDate).getTime() : 0;
+                const dateB = b.startDate ? new Date(b.startDate).getTime() : 0;
+                if (dateB === dateA) {
+                    return (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0);
+                }
+                return dateB - dateA;
+            });
+
+            renderTable();
+            updateStats();
+        }
+
+        // --- Render Functions ---
+
+        function renderTable() {
+            // Filter Logic
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const fHub = document.getElementById('filter-hub').value;
+            const fDiv = document.getElementById('filter-division').value;
+            const fStatus = document.getElementById('filter-status').value;
+            const fStart = document.getElementById('filter-start-date').value;
+            const fEnd = document.getElementById('filter-end-date').value;
+
+            const filtered = entries.filter(item => {
+                const itemDivs = Array.isArray(item.division) ? item.division.join(' ') : (item.division || '');
+                
+                // Search
+                const matchSearch = (
+                    (item.concern || '').toLowerCase().includes(searchTerm) ||
+                    (item.problem || '').toLowerCase().includes(searchTerm) ||
+                    (item.pic || '').toLowerCase().includes(searchTerm) ||
+                    itemDivs.toLowerCase().includes(searchTerm) ||
+                    (item.hub || '').toLowerCase().includes(searchTerm)
+                );
+
+                // Filters
+                const matchHub = fHub ? item.hub === fHub : true;
+                const matchDiv = fDiv ? (Array.isArray(item.division) ? item.division.includes(fDiv) : item.division === fDiv) : true;
+                const matchStatus = fStatus ? item.status === fStatus : true;
+                
+                let matchDate = true;
+                if (fStart) matchDate = matchDate && (item.startDate >= fStart);
+                if (fEnd) matchDate = matchDate && (item.startDate <= fEnd);
+
+                return matchSearch && matchHub && matchDiv && matchStatus && matchDate;
+            });
+
+            // Update UI Counters
+            document.getElementById('showing-text').innerText = `Showing ${filtered.length} records`;
+            
+            // Count Active Filters
+            const activeFilters = [fHub, fDiv, fStatus, fStart, fEnd].filter(Boolean).length;
+            const badge = document.getElementById('filter-badge');
+            const btnFilter = document.getElementById('btn-toggle-filter');
+            if (activeFilters > 0) {
+                badge.innerText = activeFilters;
+                badge.classList.remove('hidden');
+                btnFilter.classList.add('bg-blue-50', 'border-blue-200', 'text-blue-700');
+                btnFilter.classList.remove('bg-white', 'text-slate-600');
+            } else {
+                badge.classList.add('hidden');
+                btnFilter.classList.remove('bg-blue-50', 'border-blue-200', 'text-blue-700');
+                btnFilter.classList.add('bg-white', 'text-slate-600');
+            }
+
+            // Render Rows
+            if (filtered.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-4 py-16 text-center text-slate-500">
+                            <div class="flex flex-col items-center gap-3">
+                                <div class="bg-slate-50 p-3 rounded-full"><i data-lucide="alert-circle" class="w-8 h-8 text-slate-300"></i></div>
+                                <p class="font-medium">Tidak ada data PICA ditemukan.</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            } else {
+                tableBody.innerHTML = filtered.map(item => {
+                    const isFinished = item.status === 'done';
+                    const rowClass = isFinished 
+                        ? 'bg-slate-50/50 hover:bg-slate-100 text-slate-500' 
+                        : 'bg-white hover:bg-blue-50/30 text-slate-800';
+                    
+                    const duration = calculateDuration(item.startDate, item.completionDate);
+                    const divs = Array.isArray(item.division) ? item.division.join(', ') : (item.division || '-');
+                    
+                    // Source Badge (Public vs Private)
+                    const sourceBadge = item.source === 'private' 
+                        ? `<span class="bg-slate-200 text-slate-600 text-[9px] px-1.5 py-0.5 rounded font-bold uppercase ml-2" title="Data Pribadi (Lama)">Personal</span>` 
+                        : `<span class="bg-blue-100 text-blue-600 text-[9px] px-1.5 py-0.5 rounded font-bold uppercase ml-2" title="Data Publik (Kolaborasi)">Public</span>`;
+
+                    return `
+                    <tr class="group transition-colors border-b border-blue-200 ${rowClass}">
+                        <td class="px-4 py-4 align-top">
+                            <div class="flex flex-col gap-2">
+                                <div class="flex items-center">
+                                    <div>
+                                        <span class="block text-[10px] uppercase font-bold text-slate-400 mb-0.5">HUB</span>
+                                        <span class="font-bold text-sm ${isFinished ? 'text-slate-500' : 'text-slate-800'}">${item.hub || '-'}</span>
+                                    </div>
+                                    ${sourceBadge}
+                                </div>
+                                <div>
+                                    <span class="block text-[10px] uppercase font-bold text-slate-400 mb-0.5">Divisi</span>
+                                    <span class="text-xs font-semibold ${isFinished ? 'text-slate-400' : 'text-blue-700'}">${divs}</span>
+                                </div>
+                                <div class="pt-1">
+                                    ${getSensitivityBadge(item.sensitivity)}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-4 py-4 align-top">
+                            <div class="mb-2">
+                                <span class="font-bold block text-sm mb-1 ${isFinished ? 'text-slate-600' : 'text-slate-900'}">${item.concern || ''}</span>
+                                <p class="text-xs leading-relaxed whitespace-pre-wrap ${isFinished ? 'text-slate-400' : 'text-slate-600'}">${item.problem || ''}</p>
+                            </div>
+                            <div class="flex items-center gap-2 mt-3 pt-3 border-t border-slate-100">
+                                <div class="h-5 w-5 rounded-full bg-slate-200 flex items-center justify-center text-[9px] font-bold text-slate-600">
+                                    ${item.pic ? item.pic.charAt(0).toUpperCase() : '?'}
+                                </div>
+                                <span class="text-xs font-medium text-slate-500">PIC: ${item.pic || '-'}</span>
+                            </div>
+                        </td>
+                        <td class="px-4 py-4 align-top">
+                            <div class="space-y-3">
+                                <div class="relative pl-3 border-l-2 border-blue-200">
+                                    <span class="text-[9px] font-bold text-blue-600 uppercase block mb-0.5">Corrective</span>
+                                    <p class="text-xs ${isFinished ? 'text-slate-400' : 'text-slate-700'}">${item.corrective || '-'}</p>
+                                </div>
+                                <div class="relative pl-3 border-l-2 border-emerald-200">
+                                    <span class="text-[9px] font-bold text-emerald-600 uppercase block mb-0.5">Preventive</span>
+                                    <p class="text-xs ${isFinished ? 'text-slate-400' : 'text-slate-700'}">${item.preventive || '-'}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-4 py-4 align-top">
+                            <div class="flex flex-col gap-1.5 text-[11px]">
+                                <div class="flex justify-between items-center bg-slate-50 px-2 py-1 rounded border border-slate-100">
+                                    <span class="text-slate-400 font-medium">Start</span>
+                                    <span class="font-mono font-semibold text-slate-600">${formatDate(item.startDate)}</span>
+                                </div>
+                                <div class="flex justify-between items-center bg-slate-50 px-2 py-1 rounded border border-slate-100">
+                                    <span class="text-slate-400 font-medium">Due</span>
+                                    <span class="font-mono font-semibold text-slate-600">${formatDate(item.dueDate)}</span>
+                                </div>
+                                <div class="flex justify-between items-center px-2 py-1 rounded border ${item.completionDate ? 'bg-emerald-50 border-emerald-100' : 'bg-slate-50 border-slate-100'}">
+                                    <span class="text-slate-400 font-medium">Actual</span>
+                                    <span class="font-mono font-bold ${item.completionDate ? 'text-emerald-700' : 'text-slate-300'}">${formatDate(item.completionDate)}</span>
+                                </div>
+                                ${duration ? `<div class="mt-1 text-center text-[10px] text-slate-400 font-medium">Lead Time: <span class="text-slate-800 font-bold">${duration} Hari</span></div>` : ''}
+                            </div>
+                        </td>
+                        <td class="px-4 py-4 align-top text-center pt-5">
+                            ${getStatusBadge(item.status)}
+                        </td>
+                        <td class="px-4 py-4 align-top text-center pt-5">
+                            <div class="flex flex-col gap-2 items-center opacity-40 group-hover:opacity-100 transition-opacity">
+                                <button onclick="editEntry('${item.id}', '${item.source}')" class="text-blue-600 hover:text-blue-800 hover:bg-blue-50 p-1 rounded transition-colors" title="Edit">
+                                    <i data-lucide="edit-2" class="w-4 h-4"></i>
+                                </button>
+                                <button onclick="deleteEntry('${item.id}', '${item.source}')" class="text-slate-400 hover:text-rose-600 hover:bg-rose-50 p-1 rounded transition-colors" title="Hapus">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    `;
+                }).join('');
+            }
+            lucide.createIcons();
+        }
+
+        // --- Helpers ---
+
+        function updateStats() {
+            document.getElementById('stat-total').innerText = entries.length;
+            document.getElementById('stat-waiting').innerText = entries.filter(e => e.status === 'waiting').length;
+            document.getElementById('stat-closed').innerText = entries.filter(e => e.status === 'done').length;
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const d = new Date(dateStr);
+            return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' });
+        }
+
+        function calculateDuration(start, end) {
+            if (!start || !end) return null;
+            const s = new Date(start);
+            const e = new Date(end);
+            const diffTime = Math.abs(e - s);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+            return diffDays === 0 ? 1 : diffDays;
+        }
+
+        function getStatusBadge(status) {
+            const configs = {
+                planned: { class: "bg-slate-100 text-slate-600 border-slate-200", icon: "circle", label: "Planned" },
+                waiting: { class: "bg-purple-50 text-purple-700 border-purple-200", icon: "pause-circle", label: "Waiting" },
+                progress: { class: "bg-blue-50 text-blue-700 border-blue-200", icon: "loader-2", label: "On Progress" },
+                done: { class: "bg-emerald-50 text-emerald-700 border-emerald-200", icon: "check-circle-2", label: "Closed" }
+            };
+            const c = configs[status] || configs.planned;
+            return `<span class="px-2.5 py-1 rounded-md text-[11px] font-semibold border uppercase tracking-wide whitespace-nowrap inline-flex items-center shadow-sm ${c.class}">
+                <i data-lucide="${c.icon}" class="w-3 h-3 mr-1.5 ${status === 'progress' ? 'animate-spin' : ''}"></i> ${c.label}
+            </span>`;
+        }
+
+        function getSensitivityBadge(level) {
+            const configs = {
+                low: { class: "text-emerald-700 bg-emerald-50 border-emerald-200", icon: "check-circle", label: "LOW" },
+                medium: { class: "text-amber-700 bg-amber-50 border-amber-200", icon: "alert-circle", label: "MEDIUM" },
+                high: { class: "text-rose-700 bg-rose-50 border-rose-200", icon: "shield-alert", label: "HIGH" }
+            };
+            const c = configs[level] || configs.medium;
+            return `<span class="flex items-center gap-1.5 w-fit px-2 py-0.5 rounded-full text-[10px] font-bold border ${c.class}">
+                <i data-lucide="${c.icon}" class="w-3 h-3"></i> ${c.label}
+            </span>`;
+        }
+
+        // --- Interaction Logic ---
+
+        // Multi-select Division
+        divisionSelect.addEventListener('change', (e) => {
+            const val = e.target.value;
+            if(val && !selectedDivisions.includes(val)) {
+                selectedDivisions.push(val);
+                renderDivisionTags();
+            }
+            e.target.value = "";
+        });
+
+        function renderDivisionTags() {
+            const container = document.getElementById('division-tags');
+            container.innerHTML = selectedDivisions.map(div => `
+                <span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded-md text-xs font-bold flex items-center gap-1 border border-blue-100">
+                    ${div} <button type="button" onclick="removeDiv('${div}')" class="hover:text-red-600 flex items-center"><i data-lucide="x-circle" class="w-3 h-3"></i></button>
+                </span>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        window.removeDiv = (div) => {
+            selectedDivisions = selectedDivisions.filter(d => d !== div);
+            renderDivisionTags();
+        };
+
+        // UI Buttons
+        document.getElementById('btn-toggle-filter').addEventListener('click', () => {
+            filterPanel.classList.toggle('hidden');
+        });
+
+        document.getElementById('btn-toggle-form').addEventListener('click', () => {
+            resetForm();
+            formContainer.classList.toggle('hidden');
+            if(!formContainer.classList.contains('hidden')) {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        });
+
+        document.getElementById('btn-cancel').addEventListener('click', () => {
+            formContainer.classList.add('hidden');
+            resetForm();
+        });
+
+        document.getElementById('btn-reset-filter').addEventListener('click', () => {
+            document.getElementById('filter-hub').value = "";
+            document.getElementById('filter-division').value = "";
+            document.getElementById('filter-status').value = "";
+            document.getElementById('filter-start-date').value = "";
+            document.getElementById('filter-end-date').value = "";
+            document.getElementById('search-input').value = "";
+            renderTable();
+        });
+
+        // Search Input
+        document.getElementById('search-input').addEventListener('input', renderTable);
+        ['filter-hub', 'filter-division', 'filter-status', 'filter-start-date', 'filter-end-date'].forEach(id => {
+            document.getElementById(id).addEventListener('change', renderTable);
+        });
+
+        // Status & Sensitivity Buttons
+        function renderOptionButtons() {
+            // Sensitivity
+            const sLevels = ['low', 'medium', 'high'];
+            const sContainer = document.getElementById('sensitivity-options');
+            const currentSens = document.getElementById('sensitivity').value;
+            
+            sContainer.innerHTML = sLevels.map(lvl => {
+                let cls = 'bg-white border-slate-200 text-slate-400 hover:bg-slate-50';
+                let icon = 'circle';
+                if (lvl === 'low') icon = 'check-circle';
+                if (lvl === 'medium') icon = 'alert-circle';
+                if (lvl === 'high') icon = 'shield-alert';
+
+                if(currentSens === lvl) {
+                    if(lvl === 'low') cls = 'bg-emerald-50 border-emerald-500 text-emerald-700 ring-1 ring-emerald-500';
+                    if(lvl === 'medium') cls = 'bg-amber-50 border-amber-500 text-amber-700 ring-1 ring-amber-500';
+                    if(lvl === 'high') cls = 'bg-rose-50 border-rose-500 text-rose-700 ring-1 ring-rose-500';
+                }
+                return `<button type="button" onclick="setSensitivity('${lvl}')" class="flex items-center justify-center gap-2 py-2 rounded-lg border text-xs font-bold uppercase transition-all ${cls}">
+                    <i data-lucide="${icon}" class="w-3.5 h-3.5"></i> ${lvl}
+                </button>`;
+            }).join('');
+
+            // Status
+            const stLevels = ['planned', 'waiting', 'progress', 'done'];
+            const stContainer = document.getElementById('status-options');
+            const currentStat = document.getElementById('status').value;
+
+            stContainer.innerHTML = stLevels.map(st => {
+                let baseCls = 'flex items-center justify-center gap-2 py-2 px-2 rounded-lg border text-xs font-semibold capitalize transition-all duration-300 transform';
+                let colorCls = 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:scale-105';
+                let iconName = 'circle';
+                let iconCls = 'w-3.5 h-3.5';
+
+                // Icon & Animation Logic
+                if(st === 'planned') {
+                    iconName = 'circle';
+                } else if(st === 'waiting') {
+                    iconName = 'pause-circle';
+                    if(currentStat === st) iconCls += ' animate-pulse';
+                } else if(st === 'progress') {
+                    iconName = 'loader-2';
+                    iconCls += ' animate-spin';
+                } else if(st === 'done') {
+                    iconName = 'check-circle-2';
+                }
+
+                // Active State Styling
+                if(currentStat === st) {
+                    if(st === 'planned') colorCls = 'bg-slate-600 text-white border-slate-600 shadow-md ring-2 ring-slate-200 ring-offset-1 scale-105';
+                    if(st === 'waiting') colorCls = 'bg-purple-600 text-white border-purple-600 shadow-md ring-2 ring-purple-200 ring-offset-1 scale-105';
+                    if(st === 'progress') colorCls = 'bg-blue-600 text-white border-blue-600 shadow-md ring-2 ring-blue-200 ring-offset-1 scale-105';
+                    if(st === 'done') colorCls = 'bg-emerald-600 text-white border-emerald-600 shadow-md ring-2 ring-emerald-200 ring-offset-1 scale-105';
+                }
+
+                return `<button type="button" onclick="setStatus('${st}')" class="${baseCls} ${colorCls}">
+                    <i data-lucide="${iconName}" class="${iconCls}"></i> ${st}
+                </button>`;
+            }).join('');
+            
+            lucide.createIcons(); // Important: Re-render icons
+        }
+
+        window.setSensitivity = (val) => {
+            document.getElementById('sensitivity').value = val;
+            renderOptionButtons();
+        };
+
+        window.setStatus = (val) => {
+            document.getElementById('status').value = val;
+            renderOptionButtons();
+        };
+
+        // Initial render of buttons
+        renderOptionButtons();
+
+        // Auto-fix Logic (Global)
+        window.refineText = (id) => {
+            const el = document.getElementById(id);
+            if(!el) return;
+            let text = el.value;
+            // Remove extra spaces
+            text = text.replace(/\s+/g, ' ').trim();
+            // Add space after period
+            text = text.replace(/\.([a-zA-Z])/g, '. $1');
+            // Capitalize first letter
+            if(text.length > 0) text = text.charAt(0).toUpperCase() + text.slice(1);
+            // Capitalize after punctuation
+            text = text.replace(/([.?!]\s+)([a-z])/g, (match) => match.toUpperCase());
+            // Ensure final period
+            if (text.length > 0 && !/[.?!]$/.test(text)) text += '.';
+            el.value = text;
+        };
+
+        // Form Submit
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentUser) return;
+            if (selectedDivisions.length === 0) {
+                alert("Harap pilih minimal satu Divisi.");
+                return;
+            }
+
+            const editingId = document.getElementById('entry-id').value;
+            const source = document.getElementById('entry-source').value || 'public'; // Default to public
+
+            const data = {
+                hub: document.getElementById('hub').value,
+                division: selectedDivisions,
+                sensitivity: document.getElementById('sensitivity').value,
+                concern: document.getElementById('concern').value,
+                problem: document.getElementById('problem').value,
+                pic: document.getElementById('pic').value,
+                startDate: document.getElementById('startDate').value,
+                corrective: document.getElementById('corrective').value,
+                preventive: document.getElementById('preventive').value,
+                dueDate: document.getElementById('dueDate').value,
+                completionDate: document.getElementById('completionDate').value,
+                status: document.getElementById('status').value,
+                updatedAt: serverTimestamp()
+            };
+
+            const btn = form.querySelector('button[type="submit"]');
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = 'Saving...';
+            btn.disabled = true;
+
+            try {
+                // Determine Path based on Source
+                let collectionPath;
+                if (source === 'private') {
+                    collectionPath = collection(db, 'artifacts', appId, 'users', currentUser.uid, 'pica_entries');
+                } else {
+                    collectionPath = collection(db, 'artifacts', appId, 'public', 'data', 'pica_entries');
+                }
+
+                if (editingId) {
+                    await updateDoc(doc(collectionPath, editingId), data);
+                } else {
+                    data.createdAt = serverTimestamp();
+                    // New data always goes to PUBLIC by default in this version
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'pica_entries'), data);
+                }
+                formContainer.classList.add('hidden');
+                resetForm();
+            } catch (err) {
+                console.error(err);
+                alert("Gagal menyimpan data.");
+            } finally {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            }
+        });
+
+        // Edit Entry (Modified for Source)
+        window.editEntry = (id, source) => {
+            const item = entries.find(e => e.id === id);
+            if (!item) return;
+
+            document.getElementById('entry-id').value = item.id;
+            document.getElementById('entry-source').value = source || 'public'; // Store source
+            
+            document.getElementById('hub').value = item.hub || '';
+            selectedDivisions = Array.isArray(item.division) ? item.division : [item.division];
+            document.getElementById('sensitivity').value = item.sensitivity || 'medium';
+            document.getElementById('concern').value = item.concern || '';
+            document.getElementById('problem').value = item.problem || '';
+            document.getElementById('pic').value = item.pic || '';
+            document.getElementById('startDate').value = item.startDate || '';
+            document.getElementById('corrective').value = item.corrective || '';
+            document.getElementById('preventive').value = item.preventive || '';
+            document.getElementById('dueDate').value = item.dueDate || '';
+            document.getElementById('completionDate').value = item.completionDate || '';
+            document.getElementById('status').value = item.status || 'planned';
+
+            renderDivisionTags();
+            renderOptionButtons();
+            
+            const badge = source === 'private' ? '<span class="bg-slate-200 text-slate-600 text-xs px-2 py-0.5 rounded ml-2">PERSONAL</span>' : '';
+            document.getElementById('form-title').innerHTML = `<i data-lucide="edit-2" class="text-blue-200 w-5 h-5"></i> Edit Data PICA ${badge}`;
+            document.getElementById('submit-text').innerText = 'Update Data';
+            
+            formContainer.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            lucide.createIcons();
+        };
+
+        // Delete Entry (Modified for Source)
+        window.deleteEntry = async (id, source) => {
+            if(!confirm("Hapus data ini?")) return;
+            try {
+                let docRef;
+                if (source === 'private') {
+                    docRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'pica_entries', id);
+                } else {
+                    docRef = doc(db, 'artifacts', appId, 'public', 'data', 'pica_entries', id);
+                }
+                await deleteDoc(docRef);
+            } catch (e) { console.error(e); }
+        };
+
+        function resetForm() {
+            form.reset();
+            document.getElementById('entry-id').value = "";
+            document.getElementById('entry-source').value = "public"; // Reset to public for new entries
+            selectedDivisions = [];
+            renderDivisionTags();
+            document.getElementById('sensitivity').value = 'medium';
+            document.getElementById('status').value = 'planned';
+            renderOptionButtons();
+            
+            document.getElementById('form-title').innerHTML = '<i data-lucide="plus" class="text-blue-200 w-5 h-5"></i> Input Data PICA Baru';
+            document.getElementById('submit-text').innerText = 'Submit Data';
+            lucide.createIcons();
+        }
+
+        // Init Icons
+        lucide.createIcons();
+
+    </script>
+</body>
+</html>
